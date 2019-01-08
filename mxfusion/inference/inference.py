@@ -58,7 +58,7 @@ class Inference(object):
     def print_params(self):
         """
         Returns a string with the inference parameters nicely formatted for display, showing which model they came from and their name + uuid.
-        
+
         Format:
         > infr.print_params()
         Variable(1ab23)(name=y) - (Model/Posterior(123ge2)) - (first mxnet values/shape)
@@ -141,9 +141,9 @@ class Inference(object):
                 else:
                     raise InferenceError("Keywords not of type mx.nd.NDArray or tuple/list "
                                          "for shapes passed into initialization.")
-                shape_constants = discover_shape_constants(data_shapes,
+                self._shape_constants = discover_shape_constants(data_shapes,
                                                            self._graphs)
-                self.params.update_constants(shape_constants)
+                self.params.update_constants(self._shape_constants)
             self._initialize_params()
             self._initialized = True
         else:

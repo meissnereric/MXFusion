@@ -189,7 +189,7 @@ class InferenceAlgorithm(ABC):
         """
         Create a MXNet Gluon block to carry out the computation.
 
-        :param data_def: a list of unique ID of data variables. The order of
+        :param data_def: a list of unique IDs of data variables. The order of
             variables in the list corresponds to the order of variable in the
             positional arguments when calling the Gluon Block.
         :type data_def: [UUID of Variable (str)]
@@ -207,6 +207,7 @@ class InferenceAlgorithm(ABC):
             var_trans_m, excluded_m = m.prepare_executor(rv_scaling=rv_scaling)
             var_trans.update(var_trans_m)
             excluded = excluded.union(excluded_m)
+
         block = ObjectiveBlock(infr_method=self, params=params,
                                constants=params.constants,
                                data_def=data_def, var_trans=var_trans,
