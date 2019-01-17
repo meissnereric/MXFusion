@@ -44,7 +44,7 @@ class FunctionEvaluation(Factor):
         replicant.broadcastable = self.broadcastable
         return replicant
 
-    def eval(self, F, variables, always_return_tuple=False):
+    def eval(self, F, variables, always_return_tuple=False, params=None):
         """
         Evaluate the function with the pre-specified input arguments in the model defintion. All the input arguments are automatically collected from a dictionary of variables according to the UUIDs of the input arguments.
 
@@ -62,7 +62,7 @@ class FunctionEvaluation(Factor):
             # If some of the inputs are samples and the function is
             # broadcastable, evaluate the function with the inputs that are
             # broadcasted to the right shape.
-            kwargs = broadcast_samples_dict(F, kwargs)
+            kwargs = broadcast_samples_dict(F, kwargs, params=params)
             results = self.eval_impl(F=F, **kwargs)
             results = results if isinstance(results, (list, tuple)) \
                 else [results]
@@ -70,7 +70,7 @@ class FunctionEvaluation(Factor):
             # If some of the inputs are samples and the function is *not*
             # broadcastable, evaluate the function with each set of samples
             # and concatenate the output variables.
-            nSamples = max([get_num_samples(F, v) for v in kwargs.values()])
+            nSamples = max([get_num_samples(F, v, params) for v in kwargs.values()])
 
             results = None
             for sample_idx in range(nSamples):

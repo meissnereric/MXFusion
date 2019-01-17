@@ -190,7 +190,7 @@ class FactorGraph(object):
 
         return self._var_ties
 
-    def log_pdf(self, F, variables, targets=None):
+    def log_pdf(self, F, variables, targets=None, params=None):
         """
         Compute the logarithm of the probability/probability density of a set of random variables in the factor graph. The set of random
         variables are specified in the "target" argument and any necessary conditional variables are specified in the "conditionals" argument.
@@ -211,7 +211,7 @@ class FactorGraph(object):
         for f in self.ordered_factors:
             if isinstance(f, FunctionEvaluation):
                 outcome = f.eval(F=F, variables=variables,
-                                 always_return_tuple=True)
+                                 always_return_tuple=True, params=params)
                 outcome_uuid = [v.uuid for _, v in f.outputs]
                 for v, uuid in zip(outcome, outcome_uuid):
                     if uuid in variables:
@@ -220,7 +220,7 @@ class FactorGraph(object):
             elif isinstance(f, Distribution):
                 if targets is None or f.random_variable.uuid in targets:
                     logL = logL + F.sum(expectation(F, f.log_pdf(
-                        F=F, variables=variables)))
+                        F=F, variables=variables, params=params)))
             elif isinstance(f, Module):
                 if targets is None:
                     module_targets = [v.uuid for _, v in f.outputs
@@ -235,7 +235,7 @@ class FactorGraph(object):
                 raise ModelSpecificationError("There is an object in the factor graph that isn't a factor." + "That shouldn't happen.")
         return logL
 
-    def draw_samples(self, F, variables, num_samples=1, targets=None):
+    def draw_samples(self, F, variables, num_samples=1, targets=None, params=None):
         """
         Draw samples from the target variables of the Factor Graph. If the ``targets`` argument is None, draw samples from all the variables
         that are *not* in the conditional variables. If the ``targets`` argument is given, this method returns a list of samples of variables in the order of the target argument, otherwise it returns a dict of samples where the keys are the UUIDs of variables and the values are the samples.
@@ -254,7 +254,7 @@ class FactorGraph(object):
         for f in self.ordered_factors:
             if isinstance(f, FunctionEvaluation):
                 outcome = f.eval(F=F, variables=variables,
-                                 always_return_tuple=True)
+                                 always_return_tuple=True, params=params)
                 outcome_uuid = [v.uuid for _, v in f.outputs]
                 for v, uuid in zip(outcome, outcome_uuid):
                     if uuid in variables:
@@ -269,7 +269,8 @@ class FactorGraph(object):
                     raise InferenceError("Part of the outputs of the distribution " + f.__class__.__name__ + " has been observed!")
                 outcome_uuid = [v.uuid for _, v in f.outputs]
                 outcome = f.draw_samples(
-                    F=F, num_samples=num_samples, variables=variables, always_return_tuple=True)
+                    F=F, num_samples=num_samples, variables=variables,
+                    always_return_tuple=True, params=params)
                 for v, uuid in zip(outcome, outcome_uuid):
                     variables[uuid] = v
                     samples[uuid] = v

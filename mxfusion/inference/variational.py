@@ -103,8 +103,8 @@ class StochasticVariationalInference(VariationalInference):
         :rtype: mxnet.ndarray.ndarray.NDArray or mxnet.symbol.symbol.Symbol
         """
         samples = self.posterior.draw_samples(
-            F=F, variables=variables, num_samples=self.num_samples)
+            F=F, variables=variables, num_samples=self.num_samples, params=self._infr_params)
         variables.update(samples)
-        logL = self.model.log_pdf(F=F, variables=variables)
-        logL = logL - self.posterior.log_pdf(F=F, variables=variables)
+        logL = self.model.log_pdf(F=F, variables=variables, params=self._infr_params)
+        logL = logL - self.posterior.log_pdf(F=F, variables=variables, params=self._infr_params)
         return -logL, -logL

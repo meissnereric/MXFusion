@@ -88,7 +88,7 @@ class Normal(UnivariateDistribution):
         F = get_default_MXNet_mode() if F is None else F
         out_shape = (num_samples,) + rv_shape
         return F.broadcast_add(F.broadcast_mul(self._rand_gen.sample_normal(
-            shape=out_shape, dtype=self.dtype, ctx=self.ctx),
+            shape=out_shape, dtype=self.dtype, ctx=self.ctx, F=F),
             F.sqrt(variance)), mean)
 
     @staticmethod
@@ -198,7 +198,7 @@ class MultivariateNormal(Distribution):
         out_shape = (num_samples,) + rv_shape + (1,)
         lmat = F.linalg.potrf(covariance)
         epsilon = self._rand_gen.sample_normal(
-            shape=out_shape, dtype=self.dtype, ctx=self.ctx)
+            shape=out_shape, dtype=self.dtype, ctx=self.ctx, F=F)
         lmat_eps = F.linalg.trmm(lmat, epsilon)
         return F.broadcast_add(lmat_eps.sum(-1), mean)
 
@@ -305,7 +305,7 @@ class NormalMeanPrecision(UnivariateDistribution):
         F = get_default_MXNet_mode() if F is None else F
         out_shape = (num_samples,) + rv_shape
         return F.broadcast_add(F.broadcast_div(self._rand_gen.sample_normal(
-            shape=out_shape, dtype=self.dtype, ctx=self.ctx),
+            shape=out_shape, dtype=self.dtype, ctx=self.ctx, F=F),
             F.sqrt(precision)), mean)
 
     @staticmethod
@@ -420,7 +420,7 @@ class MultivariateNormalMeanPrecision(Distribution):
         # https://mxnet.incubator.apache.org/api/python/symbol/linalg.html#mxnet.symbol.linalg.potri
         lmat = F.linalg.potri(precision)
         epsilon = self._rand_gen.sample_normal(
-            shape=out_shape, dtype=self.dtype, ctx=self.ctx)
+            shape=out_shape, dtype=self.dtype, ctx=self.ctx, F=F)
         lmat_eps = F.linalg.trmm(lmat, epsilon)
         return F.broadcast_add(lmat_eps.sum(-1), mean)
 

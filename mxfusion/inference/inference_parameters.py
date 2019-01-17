@@ -74,6 +74,8 @@ class InferenceParameters(object):
             warnings.warn("InferenceParameters has already been initialized.  The existing one will be overwritten.")
 
         self._params = ParameterDict()
+
+        inits = []
         for g in graphs:
             # load in parameterdict from external gluon blocks.
             for f in g.functions.values():
@@ -88,16 +90,29 @@ class InferenceParameters(object):
             for var in g.get_parameters(excluded=excluded,
                                         include_inherited=False):
                 var_shape = realize_shape(var.shape, self._constants)
-                init = initializer.Constant(var.initial_value_before_transformation) \
-                    if var.initial_value is not None else None
+                # init = initializer.Constant(var.initial_value_before_transformation) \
+                #     if var.initial_value is not None else None
+                # if init is not None:
+                #     inits.append((var, var_shape, init))
 
-                self._params.get(name=var.uuid, shape=var_shape,
-                                 dtype=self.dtype,
-                                 allow_deferred_init=True, init=init)
+
+                p = self._params.get(name=var.uuid, shape=var_shape,
+                                     dtype=self.dtype,
+                                     allow_deferred_init=True, init=None)
+                if var.initial_value is not None:
+                    inits.append((p, var.initial_value_before_transformation))
+
             for m in g.modules.values():
                 m.initialize_hidden_parameters(self._params, excluded, self._constants)
 
+        for uuid, constant in self.constants.items():
+            if isinstance(constant, mx.ndarray.ndarray.NDArray):
+                self._params.get_constant(uuid, constant)
+
         self._params.initialize(ctx=self.mxnet_context)
+
+        for p, v in inits:
+            p.set_data(v)
 
     def initialize_with_carryover_params(self, graphs, observed_uuid, var_ties,
                                          carryover_params):

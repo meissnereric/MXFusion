@@ -15,6 +15,7 @@
 
 from mxnet.ndarray.ndarray import NDArray
 from mxnet.symbol.symbol import Symbol
+import mxnet as mx
 
 
 def add_sample_dimension(F, array):
@@ -60,26 +61,41 @@ def expectation(F, array):
     return F.mean(array, axis=0)
 
 
-def array_has_samples(F, array):
+def get_shape(F, array, params=None):
+    if F == mx.sym:
+        argument_names = array.list_arguments()
+        if params is not None:
+            relevant_parameters = {k: p.data().shape for k,p in params.param_dict.items() if k in argument_names}
+            if len(argument_names) > 0 and len(relevant_parameters) < 1:
+                assert len(argument_names) == len(params._data), "Number of arguments and number of data inputs is different!"
+                relevant_parameters = {k:v.shape for k,v in zip(argument_names, params._data)}
+                print("relevant_parameters:{}".format(relevant_parameters))
+        else:
+            relevant_parameters = {}
+
+        output_shape = array.infer_shape(**relevant_parameters)[1][0]
+        return output_shape
+    elif F == mx.nd:
+        return array.shape
+
+def array_has_samples(F, array, params=None):
     """
     Check if the array is a set of samples.
 
     :returns: True if the array is a set of samples.
     :rtypes: boolean
     """
-    # TODO: replace array.shape with F.shape_array
-    return array.shape[0] > 1
+    return get_shape(F, array, params)[0] > 1
 
 
-def get_num_samples(F, array):
+def get_num_samples(F, array, params=None):
     """
     Get the number of samples in the provided array. If the array is not a set of samples, the return value will be one.
 
     :returns: the number of samples.
     :rtypes: int
     """
-    # TODO: replace array.shape with F.shape_array
-    return array.shape[0]
+    return get_shape(F, array, params)[0]
 
 
 def as_samples(F, array, num_samples):

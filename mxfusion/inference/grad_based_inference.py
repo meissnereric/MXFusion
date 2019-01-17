@@ -84,6 +84,7 @@ class GradBasedInference(Inference):
         """
         data = [kwargs[v] for v in self.observed_variable_names]
         self.initialize(**kwargs)
+        self.params._data = data
 
         infr = self.create_executor()
         return self._grad_loop.run(

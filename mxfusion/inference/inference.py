@@ -53,6 +53,7 @@ class Inference(object):
         self.params = InferenceParameters(constants=constants,
                                           dtype=self.dtype,
                                           context=self.mxnet_context)
+        self._inference_algorithm._infr_params = self.params
         self._initialized = False
 
     def print_params(self):
@@ -160,6 +161,7 @@ class Inference(object):
         :rtype: {UUID: samples}
         """
         data = [kwargs[v] for v in self.observed_variable_names]
+        self.params._data = data
         self.initialize(**kwargs)
         executor = self.create_executor()
         return executor(mx.nd.zeros(1, ctx=self.mxnet_context), *data)

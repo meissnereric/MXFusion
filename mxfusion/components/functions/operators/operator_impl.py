@@ -19,6 +19,7 @@ from .operators import Operator
 from ...variables import Variable
 from ....util.inference import realize_shape
 from ....common.exceptions import InferenceError
+from ....components.variables.runtime_variable import get_shape
 
 
 """ Basic Arithmetic """
@@ -118,15 +119,10 @@ def broadcast_to(data, shape):
                 operator_name='broadcast_to', properties={'shape': shape},
                 broadcastable=True)
 
-        def eval(self, F, variables, always_return_tuple=False):
+        def eval(self, F, variables, always_return_tuple=False, params=None):
             target_shape = realize_shape(self.properties['shape'], variables)
             data = variables[self.inputs[0][1].uuid]
-            if F is mx.ndarray:
-                source_shape = data.shape
-            elif F is mx.symbol:
-                raise NotImplementedError('Symbolic mode to be supported!')
-            else:
-                raise InferenceError('Unknown MXNet Mode '+str(F))
+            source_shape = get_shape(F, data, params)
             n_target_dim = len(target_shape)
             n_source_dim = len(source_shape)
 
