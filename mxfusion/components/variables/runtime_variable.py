@@ -60,6 +60,14 @@ def expectation(F, array):
     """
     return F.mean(array, axis=0)
 
+def get_index(F, array, index, params=None):
+    if F == mx.sym:
+        saved_array = F.slice_axis(array, axis=0, begin=index, end=index+1)
+        shape = get_shape(F, saved_array, params)
+        reshaped_array = F.reshape(saved_array, shape=shape[1:])
+        return reshaped_array
+    else:
+        return array[index]
 
 def get_shape(F, array, params=None):
     if F == mx.sym:

@@ -15,7 +15,7 @@
 
 from abc import abstractmethod
 from ..factor import Factor
-from ..variables import array_has_samples, get_num_samples
+from ..variables import array_has_samples, get_num_samples, get_index
 from ..variables import VariableType
 from ...util.inference import broadcast_samples_dict
 
@@ -74,22 +74,24 @@ class FunctionEvaluation(Factor):
 
             results = None
             for sample_idx in range(nSamples):
-                r = self.eval_impl(F=F, **{
-                        n: v[sample_idx] if array_has_samples(F, v) else v[0]
+                temp_result = self.eval_impl(F=F, **{
+                        n: get_index(F, v, sample_idx, params)
+                        if array_has_samples(F, v)
+                        else get_index(F, v, 0, params)
                         for n, v in kwargs.items()})
-                if isinstance(r, (list, tuple)):
-                    r = [F.expand_dims(r_i, axis=0) for r_i in r]
+                if isinstance(temp_result, (list, tuple)):
+                    temp_result = [F.expand_dims(r_i, axis=0) for r_i in temp_result]
                 else:
-                    r = [F.expand_dims(r, axis=0)]
+                    temp_result = [F.expand_dims(temp_result, axis=0)]
                 if results is None:
-                    results = [[r_i] for r_i in r]
+                    results = [[r_i] for r_i in temp_result]
                 else:
-                    for r_list, r_i in zip(results, r):
+                    for r_list, r_i in zip(results, temp_result):
                         r_list.append(r_i)
             if nSamples == 1:
                 results = [r[0] for r in results]
             else:
-                results = [F.concat(*r, dim=0) for r in results]
+                results = [F.concat(*temp_result, dim=0) for temp_result in results]
         if len(results) == 1 and not always_return_tuple:
             results = results[0]
         return results

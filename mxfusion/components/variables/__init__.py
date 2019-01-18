@@ -28,6 +28,6 @@ Submodules
 
 __all__ = ['runtime_variable', 'var_trans', 'variable']
 
-from .runtime_variable import add_sample_dimension, add_sample_dimension_to_arrays, expectation, array_has_samples, get_num_samples, as_samples
+from .runtime_variable import add_sample_dimension, add_sample_dimension_to_arrays, expectation, array_has_samples, get_num_samples, as_samples, get_index, get_shape
 from .var_trans import Softplus, PositiveTransformation
 from .variable import Variable, VariableType
