@@ -62,3 +62,8 @@ docs/_build
 docs/generated
 docs/examples
 venv
+
+# Jekyll
+_site
+.sass-cache
+.jekyll-metadata
