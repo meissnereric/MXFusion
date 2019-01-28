@@ -17,10 +17,9 @@ title: MXFusion
 email: meissner.eric.7@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
   What a super great site don'tcha think?
-baseurl: "" # the subpath of your site, e.g. /blog
-url: "" # the base hostname & protocol for your site, e.g. http://example.com
-twitter_username: jekyllrb
-github_username:  jekyll
+baseurl: "/mxfusion" # the subpath of your site, e.g. /blog
+url: "http://mxfusion.com" # the base hostname & protocol for your site, e.g. http://example.com
+github_username:  MXFusion
 
 # Build settings
 markdown: kramdown
