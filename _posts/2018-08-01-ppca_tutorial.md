@@ -4,33 +4,8 @@ title:  "PPCA Tutorial"
 date:   2018-08-01 11:35:34 +0000
 categories: tutorial
 tag: tutorial unsupervised
-img: /images/ppca_tutorial_39_1.png
+img: ppca_tutorial_39_1.png
 ---
-
-# Probabilistic PCA Tutorial
-This tutorial will demonstrate Probabilistic PCA, a  factor analysis technique.
-
-Maths and notation following [Machine Learning: A Probabilistic Perspective](https://www.amazon.com/gp/product/0262018020).
-
-## Installation
-Follow the instrallation instructions in the [README](../../README.md) file to get setup.
-
-```
-# Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
-#
-#   Licensed under the Apache License, Version 2.0 (the "License").
-#   You may not use this file except in compliance with the License.
-#   A copy of the License is located at
-#
-#       http://www.apache.org/licenses/LICENSE-2.0
-#
-#   or in the "license" file accompanying this file. This file is distributed
-#   on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
-#   express or implied. See the License for the specific language governing
-#   permissions and limitations under the License.
-# ==============================================================================
-```
-
 
 ## Probabalistic Modeling Introduction
 
@@ -107,7 +82,7 @@ plt.plot(r[:,0], r[:,1],'.')
 
 
 
-![png](/images/ppca_tutorial_10_1.png)
+![png](/mxfusion/images/ppca_tutorial_10_1.png)
 
 
 We now project our $K$ dimensional ```r``` into a high-dimensional $D$ space using a random matrix of random weights $W$. Now that ```r``` is embedded in a $D$ dimensional space the goal of PPCA will be to recover ```r``` in it's original low-dimensional $K$ space.
@@ -139,7 +114,7 @@ plt.show()
 ```
 
 
-![png](/images/ppca_tutorial_15_0.png)
+![png](/mxfusion/images/ppca_tutorial_15_0.png)
 
 
 ## MXFusion Model Definition
@@ -277,4 +252,4 @@ plt.plot(post_z_mean[:,0], post_z_mean[:,1],'.')
 
 
 
-![png](/images/ppca_tutorial_39_1.png)
+![png](/mxfusion/images/ppca_tutorial_39_1.png)

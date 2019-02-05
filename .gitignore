@@ -64,6 +64,5 @@ docs/examples
 venv
 
 # Jekyll
-_site
 .sass-cache
 .jekyll-metadata
