@@ -4,5 +4,6 @@ flake8>=3.5.0
 pytest>=3.5.1
 pytest-cov>=2.5.1
 scipy>=1.1.0
-GPy>=1.8.5
+GPy>=1.9.6
 matplotlib
+mxnet>=1.3

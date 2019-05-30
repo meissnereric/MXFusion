@@ -6,9 +6,9 @@ import numpy as np
 import mxnet as mx
 from ...common.config import get_default_MXNet_mode
 from ..variables import Variable
-from .univariate import UnivariateDistribution, UnivariateLogPDFDecorator, UnivariateDrawSamplesDecorator
-from .distribution import Distribution, LogPDFDecorator, DrawSamplesDecorator
-from ..variables import is_sampled_array, get_num_samples
+from .univariate import UnivariateDistribution
+from .distribution import Distribution
+from ..variables import get_num_samples
 from ...util.customop import broadcast_to_w_samples
 
 
@@ -43,7 +43,6 @@ class Mixture(UnivariateDistribution):
                                      rand_gen=rand_gen, dtype=dtype, ctx=ctx)
 
 
-    @UnivariateLogPDFDecorator()
     def log_pdf(self, mixing_prob, random_variable, F=None, **kwargs):
         """
         Computes the logarithm of the probability density function (PDF) of the Gamma distribution.
@@ -80,7 +79,6 @@ class Mixture(UnivariateDistribution):
 
 
 
-    @UnivariateDrawSamplesDecorator()
     def draw_samples(self, mixing_prob, rv_shape, num_samples=1, F=None, **kwargs):
         """
         Draw samples from the Mixture distribution.
