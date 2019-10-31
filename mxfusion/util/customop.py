@@ -18,7 +18,6 @@ import numpy as np
 from mxnet.operator import CustomOp, CustomOpProp
 from .util import parse_string_to_tuple
 
-
 class MakeDiagonalOp(mx.operator.CustomOp):
     def __init__(self, **kwargs):
         super(MakeDiagonalOp, self).__init__(**kwargs)
@@ -180,3 +179,60 @@ class ScoreFuncGradOpProp(mx.operator.CustomOpProp):
 
 def score_func_grad(p, q, name="score_func_grad"):
     return mx.nd.Custom(p, q, name=name, op_type="score_func_grad")
+
+class LogSumExpOp(mx.operator.CustomOp):
+    """Implementation of log sum exp for numerical stability
+    """
+    def __init__(self, axis):
+        self.axis = axis
+
+    def forward(self, is_train, req, in_data, out_data, aux):
+        x = in_data[0]
+        max_x = mx.nd.max_axis(x, axis=self.axis, keepdims=True)
+        sum_x = mx.nd.sum(mx.nd.exp(x - max_x), axis=self.axis, keepdims=True)
+        y = mx.nd.log(sum_x) + max_x
+        y = y.reshape(out_data[0].shape)
+        self.assign(out_data[0], req[0], y)
+
+    def backward(self, req, out_grad, in_data, out_data, in_grad, aux):
+        y = out_grad[0]
+        x = in_data[0]
+        max_x = mx.nd.max_axis(x, axis=self.axis, keepdims=True)
+        y = y.reshape(max_x.shape)
+        x = mx.nd.exp(x - max_x)
+        prob = x / mx.nd.sum(x, axis=self.axis, keepdims=True)
+        self.assign(in_grad[0], req[0], prob * y)
+
+
+@mx.operator.register("logsumexp")
+class LogSumExpProp(mx.operator.CustomOpProp):
+    def __init__(self, axis, keepdims=False):
+        super(LogSumExpProp, self).__init__(need_top_grad=True)
+        self.axis = int(axis)
+        self.keepdims = keepdims in ('True',)
+
+    def list_arguments(self):
+        return ['data']
+
+    def list_outputs(self):
+        return ['output']
+
+    def infer_shape(self, in_shape):
+        data_shape = in_shape[0]
+        oshape = []
+        for i, x in enumerate(data_shape):
+            if i == self.axis:
+                if self.keepdims:
+                    oshape.append(1)
+            else:
+                oshape.append(x)
+        return [data_shape], [tuple(oshape)], []
+
+    def create_operator(self, ctx, shapes, dtypes):
+        return LogSumExpOp(self.axis)
+
+
+def logsumexp(in_sym, axis, keepdims=False, name="logsumexp"):
+    return mx.nd.Custom(in_sym, name=name,
+                            op_type="logsumexp",
+                            axis=axis, keepdims=keepdims)
