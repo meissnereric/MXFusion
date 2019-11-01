@@ -189,6 +189,55 @@ class FactorGraph(object):
 
         return self._var_ties
 
+    def log_pdf_matrix(self, F, variables, targets=None):
+        """
+        Compute the logarithm of the probability/probability density of a set of random variables in the factor graph.
+        The set of random variables are specified in the "target" argument and any necessary conditional variables are
+        specified in the "conditionals" argument. Any relevant constants are specified in the "constants" argument.
+
+        :param F: the MXNet computation mode (``mxnet.symbol`` or ``mxnet.ndarray``).
+        :param variables: The set of variables
+        :type variables: {UUID : MXNet NDArray or MXNet Symbol}
+        :param targets: Variables to compute the log probability of.
+        :type targets: {uuid : mxnet NDArray or mxnet Symbol}
+        :returns: the sum of the log probability of all the target variables.
+        :rtype: mxnet NDArray or mxnet Symbol
+        """
+        if targets is not None:
+            targets = set(targets) if isinstance(targets, (list, tuple)) \
+                else targets
+        logL = {}
+        for f in self.ordered_factors:
+            if isinstance(f, FunctionEvaluation):
+                outcome = f.eval(F=F, variables=variables,
+                                 always_return_tuple=True)
+                outcome_uuid = [v.uuid for _, v in f.outputs]
+                for v, uuid in zip(outcome, outcome_uuid):
+                    if uuid in variables:
+                        warnings.warn('Function evaluation in FactorGraph.compute_log_prob_RT: the outcome variable '
+                                      + str(uuid) + ' of the function evaluation ' + str(f) +
+                                      ' has already existed in the variable set.')
+                    variables[uuid] = v
+            elif isinstance(f, Distribution):
+                if targets is None or f.random_variable.uuid in targets:
+                    logL[f.uuid] = f.log_pdf(
+                        F=F, variables=variables)
+            elif isinstance(f, Module):
+                if targets is None:
+                    module_targets = [v.uuid for _, v in f.outputs
+                                      if v.uuid in variables]
+                else:
+                    module_targets = [v.uuid for _, v in f.outputs
+                                      if v.uuid in targets]
+                if len(module_targets) > 0:
+                    logL[f.uuid] = f.log_pdf(
+                        F=F, variables=variables)
+            else:
+                raise ModelSpecificationError("There is an object in the factor graph that isn't a factor." +
+                                              "That shouldn't happen.")
+        return logL
+
+
     def log_pdf(self, F, variables, targets=None):
         """
         Compute the logarithm of the probability/probability density of a set of random variables in the factor graph.
