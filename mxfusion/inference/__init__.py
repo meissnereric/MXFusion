@@ -46,6 +46,7 @@ from .expectation import ExpectationAlgorithm, ExpectationScoreFunctionAlgorithm
 from .forward_sampling import ForwardSampling, VariationalPosteriorForwardSampling, ForwardSamplingAlgorithm
 from .grad_based_inference import GradBasedInference, GradTransferInference
 from .dist_grad_based_inference import DistributedGradBasedInference, DistributedGradTransferInference
+from .gvi import GeneralizedVariationalInference, RenyiAlpha, GammaLoss
 from .inference import Inference, TransferInference
 from .inference_parameters import InferenceParameters
 from .logger import Logger
