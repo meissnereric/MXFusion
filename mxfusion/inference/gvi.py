@@ -153,9 +153,16 @@ class RenyiAlpha(Divergence):
 
         D_tilde = logsumexp(log_r_s, axis=0, keepdims=True) - log_S # axis=samples
         print("D_tilde: {}".format(D_tilde))
-        D_bar = (1 / (self.alpha - 1)) / D_tilde
+        D_bar = (1 / (self.alpha - 1)) * D_tilde
         print("D_bar: {}".format(D_bar))
         return D_bar
+
+class KullbackLeibler(Divergence):
+    def __init__(self):
+        pass
+    
+    def compute_divergence(self, total_posterior_loss, total_prior_loss, log_S):
+        return mx.nd.sum(total_posterior_loss - total_prior_loss)/mx.nd.exp(log_S)
 
 
 class GammaLoss(LossFunction):
@@ -176,3 +183,12 @@ class GammaLoss(LossFunction):
         logL_bar = - (logsumexp(logsumexp(logL_l_i_s, axis=1, keepdims=True), axis=0) - log_S)
         print("logL_bar: {}".format(logL_bar))
         return logL_bar
+    
+    
+class StandardLoss(LossFunction):
+    def __init__(self):
+        pass
+
+    def compute_loss(self, total_likelihood, log_n, log_S):
+        return -mx.nd.sum(total_likelihood)/mx.nd.exp(log_S)
+        
